@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nehru Arts & Science College — Student Portal Pro</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+:root{
+  --nav:#071b38;
+  --nav2:#0b2d58;
+  --accent:#f0b429;
+  --bg:#eef3f9;
+  --card:#ffffff;
+  --text:#102033;
+  --muted:#6f8099;
+  --line:#dde6f3;
+  --btn:#0c4da2;
+  --btn2:#d94b4b;
+  --good:#1a9a54;
+  --warn:#c07c13;
+  --darkField:#0f141c;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+button,input,select,textarea{font:inherit}
+body.modal-open{overflow:hidden}
+.hidden{display:none!important}
+#authView,#appView{display:none}
+#startupLoader{
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg,#071b38,#0c4da2);
+  color:#fff;
+  padding:18px;
+}
+.loader-card{
+  width:min(420px,100%);
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:20px;
+  padding:28px;
+  text-align:center;
+  backdrop-filter:blur(10px);
+  box-shadow:0 22px 60px rgba(0,0,0,.28);
+}
+.loader-card .logo{
+  width:64px;
+  height:64px;
+  margin:0 auto 14px;
+  border-radius:50%;
+  background:var(--accent);
+  display:grid;
+  place-items:center;
+  color:#222;
+  font-size:28px;
+  font-weight:900;
+}
+.loader-spinner{
+  width:38px;
+  height:38px;
+  margin:16px auto 0;
+  border:4px solid rgba(255,255,255,.25);
+  border-top-color:#fff;
+  border-radius:50%;
+  animation:spin .9s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.login-shell{min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#071b38,#0c4da2);padding:18px}
+.auth-card{width:min(470px,100%);background:#fff;border-radius:20px;padding:24px;box-shadow:0 22px 60px rgba(0,0,0,.28)}
+.brand-mini{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.brand-mini .logo{width:48px;height:48px;border-radius:50%;background:var(--accent);display:grid;place-items:center;font-size:22px;font-weight:900}
+.brand-mini h2{margin:0;font-size:18px}.brand-mini p{margin:4px 0 0;color:var(--muted);font-size:13px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;background:#eff4fb;border-radius:14px;padding:4px;gap:4px;margin:16px 0}
+.tabs button{border:none;background:transparent;padding:12px;border-radius:10px;font-weight:800;cursor:pointer}
+.tabs button.active{background:#fff;color:var(--btn);box-shadow:0 5px 16px rgba(10,50,120,.12)}
+.field-grid{display:grid;gap:12px}.field-grid.two{grid-template-columns:1fr 1fr}
+.field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.5px;font-weight:900;margin:0 0 6px}
+.field input,.field select,.field textarea{width:100%;padding:12px;border-radius:12px;border:1px solid #1b2a3d;background:var(--darkField);color:#fff;outline:none}
+.field input::placeholder,.field textarea::placeholder{color:#9fb0ca}.field textarea{min-height:90px;resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#6db1ff;box-shadow:0 0 0 3px rgba(109,177,255,.17)}
+.field input[type="file"]{background:#fff;color:var(--text);border:1px solid var(--line);padding:9px}
+.field input[type="file"]::file-selector-button{border:none;background:var(--btn);color:#fff;padding:8px 12px;border-radius:10px;margin-right:10px;cursor:pointer}
+.result-filter-row{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch}
+.result-filter-row > select,.result-filter-row > button{min-width:130px;max-width:150px}
+#searchClass,#searchSection,.subject-select-trigger{padding:12px 14px;border-radius:16px;border:1px solid #cfd8e6;background:#fff;color:var(--text);outline:none;min-height:56px}
+.subject-multi{position:relative;min-width:170px;max-width:190px;flex:1 1 170px}
+.subject-select-trigger{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;font-weight:600}
+.subject-select-trigger .subject-select-text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.subject-select-trigger .caret{font-size:12px;color:#5d6f8a}
+.subject-dropdown{position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;border:1px solid #cfd8e6;border-radius:16px;box-shadow:0 16px 32px rgba(10,35,80,.14);padding:8px;z-index:40;display:none;max-height:220px;overflow:auto}
+.subject-dropdown.open{display:block}
+.subject-option{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;cursor:pointer;font-size:14px}
+.subject-option:hover{background:#f3f7fc}
+.subject-option input{width:16px;height:16px;accent-color:var(--btn);margin:0}
+.subject-option span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.student-photo-preview{width:96px;height:96px;object-fit:cover;border-radius:16px;border:1px solid var(--line);background:#f3f7fc;display:block}
+.table-student-photo{width:56px;height:56px;object-fit:cover;border-radius:12px;border:1px solid var(--line);background:#f3f7fc;display:block}
+
+.primary-btn,.danger-btn,.ghost-btn,.small-btn{border:none;border-radius:12px;cursor:pointer;font-weight:800}
+.primary-btn{background:var(--btn);color:#fff;padding:12px 16px}.danger-btn{background:var(--btn2);color:#fff;padding:12px 16px}
+.ghost-btn{background:#fff;border:1px solid var(--line);padding:11px 15px;color:var(--text)}
+.small-btn{padding:8px 10px;background:#fff;border:1px solid var(--line)}
+.small-btn.edit{color:#a06000;border-color:#ffd9aa}.small-btn.delete{color:var(--btn2);border-color:#ffc8c8}
+.helper,.muted{color:var(--muted)}.error{color:#cf2e2e;font-size:13px;margin-top:10px;min-height:18px}.success{color:var(--good);font-size:13px;margin-top:10px;min-height:18px}
+.app-shell{min-height:100vh}.layout{display:flex;min-height:100vh}
+.sidebar{width:270px;background:linear-gradient(180deg,var(--nav),var(--nav2));color:#fff;position:sticky;top:0;height:100vh;padding:16px;transition:.25s}
+.sidebar-head{display:flex;align-items:center;gap:12px;padding:10px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-head .logo{width:46px;height:46px;border-radius:50%;background:var(--accent);display:grid;place-items:center;color:#222;font-size:21px;font-weight:900}
+.sidebar-head b{display:block;font-size:14px}.sidebar-head span{display:block;font-size:12px;opacity:.85;margin-top:2px}
+.nav{display:flex;flex-direction:column;gap:7px;margin-top:14px}.nav button{border:none;background:transparent;color:#fff;text-align:left;padding:11px 12px;border-radius:12px;font-size:14px;cursor:pointer;font-weight:700}
+.nav button.active,.nav button:hover{background:rgba(240,180,41,.96);color:#162031}
+.sidebar-foot{position:absolute;left:16px;right:16px;bottom:16px;border-top:1px solid rgba(255,255,255,.11);padding-top:12px;font-size:12px}
+.main{flex:1;min-width:0}.topbar{position:sticky;top:0;background:#fff;z-index:30;border-bottom:1px solid var(--line);padding:14px 18px;display:flex;justify-content:space-between;align-items:center;gap:14px}
+.topbar-left{display:flex;align-items:center;gap:12px}.menu-btn{display:none;border:none;background:#eff4fb;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:18px}
+.page-title h1{margin:0;font-size:20px}.page-title p{margin:3px 0 0;color:var(--muted);font-size:12px}
+.user-chip{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}.avatar{width:38px;height:38px;border-radius:50%;background:#dfeaf8;display:grid;place-items:center;font-weight:900;color:var(--btn)}
+.content{padding:18px}.page{display:none}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 8px 24px rgba(8,43,102,.05)}.card + .card{margin-top:16px}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}.section-head h2{margin:0;font-size:18px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.stat{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px}.stat .num{font-size:30px;font-weight:900;margin-top:6px}
+.grid-2{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.table-wrap{overflow:auto}table{width:100%;min-width:780px;border-collapse:separate;border-spacing:0}
+thead th{background:#082c55;color:#fff;padding:12px;font-size:13px;text-align:left}thead th:first-child{border-top-left-radius:12px}thead th:last-child{border-top-right-radius:12px}
+tbody td{padding:12px;border-bottom:1px solid var(--line);background:#fff;font-size:13px;vertical-align:top}tbody tr:nth-child(even) td{background:#f9fbff}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.badge{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:800;border:1px solid var(--line)}
+.badge.good{color:var(--good);border-color:#bfefcf}.badge.warn{color:var(--warn);border-color:#ffe0b8}.badge.bad{color:var(--btn2);border-color:#ffc8c8}
+.pass{color:green;font-weight:bold}.fail{color:red;font-weight:bold}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap}.result-inline{display:flex;gap:8px;flex-wrap:wrap}.result-inline input,.result-inline select{padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:#fff;color:#000;outline:none}
+.subject-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:10px}.chart{width:90%;max-width:520px;margin:10px auto 0;height:320px}.chart-card canvas{max-height:320px}
+.profile-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.profile-box{padding:14px;border:1px solid var(--line);border-radius:14px;background:#fbfdff}
+.campus-card{padding:10px;overflow:hidden}
+.campus-card img{width:100%;height:190px;object-fit:cover;border-radius:12px;display:block}
+.campus-caption{margin-top:10px;font-weight:700;color:var(--text)}
+.modal{position:fixed;inset:0;background:rgba(10,20,36,.55);display:none;align-items:center;justify-content:center;padding:16px;z-index:90}.modal .box{width:min(760px,100%);max-height:88vh;overflow:auto;background:#fff;border-radius:18px;padding:20px}
+.mobile-overlay{display:none}.empty{padding:18px;text-align:center;color:var(--muted)}
+.campus-card img{width:100%;height:190px;object-fit:cover;border-radius:12px;display:block;background:#eef4fb}.campus-caption{margin-top:10px;font-weight:700;text-align:center}
+.firebase-path{background:#f7faff;border:1px solid var(--line);border-radius:12px;padding:12px;word-break:break-word;font-family:Consolas,monospace;font-size:13px;color:#24406b}
+@media (max-width:1100px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-2,.grid-3,.profile-summary,.field-grid.two{grid-template-columns:1fr}}
+@media (max-width:820px){.menu-btn{display:inline-block}.layout{display:block}.sidebar{position:fixed;left:-100%;top:0;height:100vh;z-index:80;width:min(290px,84vw)}.sidebar.open{left:0}.mobile-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;z-index:70}.mobile-overlay.show{display:block}.topbar{padding:12px 14px}.content{padding:14px}table{min-width:650px}}
+</style>
+</head>
+<body>
+<div id="startupLoader">
+  <div class="loader-card">
+    <div class="logo">🎓</div>
+    <h2 style="margin:0 0 8px">Loading Student Portal</h2>
+    <div style="opacity:.9">Checking your saved login...</div>
+    <div class="loader-spinner"></div>
+  </div>
+</div>
+
+<div id="authView" class="login-shell">
+  <div class="auth-card">
+    <div class="brand-mini">
+      <div class="logo">🎓</div>
+      <div>
+        <h2>Nehru Arts &amp; Science College</h2>
+        <p>Student Portal with Profile + Cloud Database</p>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button id="tabLogin" class="active" type="button">Login</button>
+      <button id="tabRegister" type="button">Create Profile</button>
+    </div>
+
+    <form id="loginForm">
+      <div class="field-grid">
+        <div class="field"><label>Email</label><input id="loginEmail" type="email" placeholder="Enter email" required></div>
+        <div class="field"><label>Password</label><input id="loginPassword" type="password" placeholder="Enter password" required></div>
+      </div>
+      <button class="primary-btn" type="submit" style="width:100%;margin-top:14px">Login</button>
+      <div id="loginMsg" class="error"></div>
+    </form>
+
+    <form id="registerForm" class="hidden">
+      <div class="field-grid two">
+        <div class="field"><label>Full Name</label><input id="regName" placeholder="Full name" required></div>
+        <div class="field"><label>Phone Number</label><input id="regPhone" placeholder="Phone number" required></div>
+        <div class="field"><label>Email</label><input id="regEmail" type="email" placeholder="Email" required></div>
+        <div class="field"><label>Password</label><input id="regPassword" type="password" placeholder="Create password" required></div>
+        <div class="field"><label>Department</label><input id="regDept" placeholder="Department"></div>
+      </div>
+      <div class="field" style="margin-top:12px"><label>About</label><textarea id="regAbout" placeholder="About profile"></textarea></div>
+      <button class="primary-btn" type="submit" style="width:100%;margin-top:14px">Create Profile</button>
+      <div id="registerMsg" class="error"></div>
+    </form>
+
+    <div class="helper" style="margin-top:14px;font-size:12px">Realtime Database is connected in this code. Enable Email/Password in Firebase Authentication before login.</div>
+  </div>
+</div>
+
+<div id="appView" class="app-shell">
+  <div id="mobileOverlay" class="mobile-overlay"></div>
+  <div class="layout">
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-head">
+        <div class="logo">🎓</div>
+        <div><b>Nehru Arts &amp; Science College</b><span>Student Portal Pro</span></div>
+      </div>
+      <div class="nav">
+        <button class="nav-btn active" data-page="dashboard">🏠 Dashboard</button>
+        <button class="nav-btn" data-page="profile">👤 Profile</button>
+        <button class="nav-btn" data-page="students">👨‍🎓 Student Details</button>
+        <button class="nav-btn" data-page="attendance">🗓 Attendance</button>
+        <button class="nav-btn" data-page="results">📄 Student Result</button>
+        <button class="nav-btn" data-page="about">ℹ️ About</button>
+        <button class="nav-btn" data-page="help">❓ Help</button>
+      </div>
+      <div class="sidebar-foot"><div>Logged in as</div><b id="sideUser">—</b></div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button id="menuBtn" class="menu-btn" type="button">☰</button>
+          <div class="page-title">
+            <h1 id="pageTitle">Dashboard</h1>
+            <p id="pageSub">Cloud synced student management portal</p>
+          </div>
+        </div>
+        <div class="user-chip">
+          <div class="avatar" id="avatarBox">U</div>
+          <div>
+            <div>Welcome, <b id="topUser">—</b></div>
+            <div class="muted" id="topEmail">—</div>
+          </div>
+          <button id="logoutBtn" class="ghost-btn" type="button">Logout</button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section id="page-dashboard" class="page" style="display:block">
+          <div class="card">
+            <div class="section-head"><h2>Dashboard Overview</h2></div>
+            <div class="stats">
+              <div class="stat"><div class="muted">Total Students</div><div id="dashStudents" class="num">0</div></div>
+              <div class="stat"><div class="muted">Attendance Records</div><div id="dashAttendance" class="num">0</div></div>
+              <div class="stat"><div class="muted">Result Records</div><div id="dashResults" class="num">0</div></div>
+              <div class="stat"><div class="muted">Subjects</div><div id="dashSubjects" class="num">0</div></div>
+            </div>
+          </div>
+          <div class="card" style="margin-top:16px">
+            <div class="section-head"><h2>College Details</h2></div>
+            <div class="grid-3">
+              <div class="profile-box"><b>Institution</b><div class="muted">Nehru Arts &amp; Science College provides academic support, student record management, and semester-wise result monitoring.</div></div>
+              <div class="profile-box"><b>Academic Modules</b><div class="muted">This portal manages student details, attendance, subjects, semester marks, SGPA, CGPA, and printable result reports.</div></div>
+              <div class="profile-box"><b>Purpose</b><div class="muted">This portal is built to simplify student record handling, monitor attendance, analyse semester results, and support clear academic reporting for college use.</div></div>
+            </div>
+          </div>
+          <div class="card" style="margin-top:16px">
+            <div class="section-head"><h2>Campus Gallery</h2></div>
+            <div class="grid-3 campus-gallery">
+              <div class="profile-box campus-card"><img src="data:image/svg+xml;utf8,<?xml version='1.0' encoding='UTF-8'?><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 500'><defs><linearGradient id='g' x1='0' x2='1'><stop offset='0' stop-color='%23082c55'/><stop offset='1' stop-color='%232b7bbb'/></linearGradient></defs><rect width='800' height='500' fill='url(%23g)'/><rect y='360' width='800' height='140' fill='%23d6e6f5'/><rect x='160' y='150' width='480' height='220' rx='10' fill='%23f8fbff'/><rect x='215' y='210' width='80' height='80' fill='%23b8d3ea'/><rect x='360' y='210' width='80' height='80' fill='%23b8d3ea'/><rect x='505' y='210' width='80' height='80' fill='%23b8d3ea'/><polygon points='140,150 400,40 660,150' fill='%23f0b429'/><rect x='375' y='285' width='50' height='85' fill='%23082c55'/><text x='400' y='435' font-size='34' text-anchor='middle' fill='%23082c55' font-family='Arial'>College Campus</text></svg>" alt="College campus illustration"><div class="muted campus-caption">Campus Environment</div></div>
+              <div class="profile-box campus-card"><img src="data:image/svg+xml;utf8,<?xml version='1.0' encoding='UTF-8'?><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 500'><rect width='800' height='500' fill='%23eef4fb'/><rect x='70' y='80' width='660' height='320' rx='20' fill='%23ffffff' stroke='%23c9dced' stroke-width='8'/><rect x='110' y='120' width='580' height='24' rx='12' fill='%230c4da2'/><circle cx='190' cy='265' r='52' fill='%23f0b429'/><circle cx='400' cy='265' r='52' fill='%232b7bbb'/><circle cx='610' cy='265' r='52' fill='%231a9a54'/><rect x='145' y='320' width='90' height='16' rx='8' fill='%236f8099'/><rect x='355' y='320' width='90' height='16' rx='8' fill='%236f8099'/><rect x='565' y='320' width='90' height='16' rx='8' fill='%236f8099'/><text x='400' y='430' font-size='34' text-anchor='middle' fill='%23082c55' font-family='Arial'>Academic Learning</text></svg>" alt="Academic learning illustration"><div class="muted campus-caption">Academic Learning</div></div>
+              <div class="profile-box campus-card"><img src="data:image/svg+xml;utf8,<?xml version='1.0' encoding='UTF-8'?><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 500'><rect width='800' height='500' fill='%23eef4fb'/><rect x='100' y='110' width='140' height='240' rx='12' fill='%23082c55'/><rect x='255' y='90' width='140' height='260' rx='12' fill='%23f0b429'/><rect x='410' y='120' width='140' height='230' rx='12' fill='%232b7bbb'/><rect x='565' y='100' width='140' height='250' rx='12' fill='%231a9a54'/><rect x='90' y='350' width='630' height='25' rx='12' fill='%238aa3bf'/><text x='400' y='430' font-size='34' text-anchor='middle' fill='%23082c55' font-family='Arial'>Library and Study Support</text></svg>" alt="Library illustration"><div class="muted campus-caption">Library and Study Support</div></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="page-profile" class="page">
+          <div class="card">
+            <div class="section-head"><h2>My Profile</h2><button id="openProfileEdit" class="primary-btn" type="button">Edit Profile</button></div>
+            <div class="profile-summary">
+              <div class="profile-box"><div class="muted">Full Name</div><b id="pfName">—</b></div>
+              <div class="profile-box"><div class="muted">Email</div><b id="pfEmail">—</b></div>
+              <div class="profile-box"><div class="muted">Phone</div><b id="pfPhone">—</b></div>
+              <div class="profile-box"><div class="muted">Department</div><b id="pfDept">—</b></div>
+              <div class="profile-box"><div class="muted">About</div><b id="pfAbout">—</b></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="page-students" class="page">
+          <div class="card">
+            <div class="section-head"><h2>Add / Edit Student</h2></div>
+            <div class="field-grid two">
+              <div class="field"><label>Roll No</label><input id="st_roll" placeholder="001"></div>
+              <div class="field"><label>Register No</label><input id="st_reg" placeholder="REG2026001"></div>
+              <div class="field"><label>Student Name</label><input id="st_name" placeholder="Full name"></div>
+              <div class="field"><label>Department</label><input id="st_dept" placeholder="B.Com.CA"></div>
+              <div class="field"><label>Year</label><input id="st_year" placeholder="2026"></div>
+              <div class="field"><label>Semester</label><select id="st_sem"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></div>
+              <div class="field"><label>Phone Number</label><input id="st_phone" placeholder="9876543210"></div>
+              <div class="field"><label>Email</label><input id="st_email" placeholder="student@email.com"></div>
+              <div class="field"><label>Father Name</label><input id="st_father" placeholder="Father name"></div>
+              <div class="field"><label>Mother Name</label><input id="st_mother" placeholder="Mother name"></div>
+              <div class="field"><label>Student Photo</label><input id="st_image" type="file" accept="image/*"></div>
+              <div class="field"><label>Photo Preview</label><img id="st_image_preview" class="student-photo-preview" alt="Student photo preview" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='96' height='96'><rect width='100%' height='100%' fill='%23f3f7fc'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%236f8099' font-family='Arial' font-size='12'>No Image</text></svg>"></div>
+            </div>
+            <div class="field" style="margin-top:12px"><label>Address</label><textarea id="st_address" placeholder="Full address"></textarea></div>
+            <div class="toolbar" style="margin-top:14px"><button id="studentSaveBtn" class="primary-btn" type="button">Save Student</button><button id="studentCancelBtn" class="ghost-btn hidden" type="button">Cancel Edit</button></div>
+          </div>
+          <div class="card">
+            <div class="section-head"><h2>Student Records</h2><div class="toolbar"><button id="studentPdfBtn" class="ghost-btn" type="button">Download PDF</button></div></div>
+            <div class="result-inline" style="margin-bottom:12px"><input id="studentSearch" placeholder="Search by student name, roll no or register no"></div>
+            <div class="table-wrap"><table id="studentTable"><thead><tr><th>#</th><th>Photo</th><th>Roll No</th><th>Register No</th><th>Name</th><th>Department</th><th>Year</th><th>Semester</th><th>Phone</th><th>Email</th><th>Actions</th></tr></thead><tbody id="studentTbody"></tbody></table></div>
+          </div>
+        </section>
+
+        <section id="page-attendance" class="page">
+          <div class="card">
+            <div class="section-head"><h2>Add / Edit Attendance</h2></div>
+            <div class="field-grid two">
+              <div class="field"><label>Student Name</label><input id="att_name" placeholder="Student name"></div>
+              <div class="field"><label>Class</label><input id="att_class" placeholder="Class name"></div>
+              <div class="field"><label>Working Days</label><input id="att_work" type="number" placeholder="90"></div>
+              <div class="field"><label>Present Days</label><input id="att_present" type="number" placeholder="72"></div>
+            </div>
+            <div class="toolbar" style="margin-top:14px"><button id="attSaveBtn" class="primary-btn" type="button">Save Attendance</button><button id="attCancelBtn" class="ghost-btn hidden" type="button">Cancel Edit</button></div>
+          </div>
+          <div class="card">
+            <div class="section-head"><h2>Attendance Records</h2><button id="attPdfBtn" class="ghost-btn" type="button">Download PDF</button></div>
+            <div class="result-inline" style="margin-bottom:12px"><input id="attendanceSearch" placeholder="Search by student name or class"></div>
+            <div class="table-wrap"><table id="attendanceTable"><thead><tr><th>#</th><th>Student Name</th><th>Class</th><th>Working Days</th><th>Present Days</th><th>Percentage</th><th>Status</th><th>Actions</th></tr></thead><tbody id="attendanceTbody"></tbody></table></div>
+          </div>
+        </section>
+
+        <section id="page-results" class="page">
+          <div class="card">
+            <div class="section-head"><h2>Student Result Analysis</h2></div>
+            <div class="result-inline">
+              <input id="className" placeholder="Class Name (Eg: BSc CS)">
+              <button id="changeClassBtn" class="ghost-btn" type="button">Change Class</button>
+              <select id="sectionName"><option>A</option><option>B</option><option>C</option></select>
+              <select id="semester"><option value="1">Semester 1</option><option value="2">Semester 2</option><option value="3">Semester 3</option><option value="4">Semester 4</option><option value="5">Semester 5</option><option value="6">Semester 6</option></select>
+            </div>
+            <div class="muted" style="margin-top:8px;font-size:12px">Enter class once. It stays saved for the next students until you click Change Class.</div>
+            <div style="margin-top:16px">
+              <div class="section-head"><h2 style="font-size:16px">Add / Edit Subject</h2></div>
+              <div class="result-inline"><input id="newSubject" placeholder="Subject name"><button id="addSubjectBtn" class="primary-btn" type="button">Add Subject</button></div>
+              <div class="table-wrap" style="margin-top:10px"><table id="subjectTable"><thead><tr><th>Subject</th><th>Action</th></tr></thead><tbody id="subjectTbody"></tbody></table></div>
+            </div>
+            <div style="margin-top:16px">
+              <div class="section-head"><h2 style="font-size:16px">Add Student</h2></div>
+              <div class="result-inline"><input id="studentName" placeholder="Student Name"><select id="maxMarks"><option value="100">100</option><option value="75">75</option></select></div>
+              <div id="marksInputs" class="subject-grid"></div>
+              <div class="toolbar" style="margin-top:14px"><button id="resultSaveBtn" class="primary-btn" type="button">Save Student</button><button id="resultCancelBtn" class="ghost-btn hidden" type="button">Cancel Edit</button></div>
+            </div>
+            <div style="margin-top:16px">
+              <div class="section-head"><h2 style="font-size:16px">Check Subject Result</h2></div>
+              <div class="result-filter-row">
+                <input id="resultNameSearch" placeholder="Search by student name" style="min-width:190px;max-width:220px;padding:12px 14px;border-radius:16px;border:1px solid #cfd8e6;background:#fff;color:var(--text);outline:none;min-height:56px">
+                <select id="searchClass"><option value="">All Classes</option></select>
+                <select id="searchSection"><option value="">All Sections</option><option>A</option><option>B</option><option>C</option></select>
+                <div class="subject-multi" id="subjectMultiWrap">
+                  <button id="searchSubjectTrigger" class="subject-select-trigger" type="button" aria-expanded="false"><span id="searchSubjectText" class="subject-select-text">All Subjects</span><span class="caret">▼</span></button>
+                  <div id="searchSubjectMenu" class="subject-dropdown"></div>
+                </div>
+                <button id="searchResultBtn" class="primary-btn" type="button">Search</button>
+                <button id="clearSearchBtn" class="ghost-btn" type="button">Show All</button>
+              </div>
+              <div class="muted" style="margin-top:8px;font-size:12px">You can select multiple subjects here. Leave it empty to show all subjects.</div>
+            </div>
+          </div>
+          <div class="card"><div class="section-head"><h2>Result Records</h2><div class="toolbar"><button id="resultPdfBtn" class="ghost-btn" type="button">Download PDF</button></div></div><div class="table-wrap"><table id="resultTable"><thead id="tableHead"></thead><tbody id="resultTbody"></tbody></table></div><h2 id="cgpaDisplay"></h2></div>
+          <div class="card chart-card"><div class="section-head"><h2>Grade Chart</h2></div><div class="chart"><canvas id="gradeChart"></canvas></div></div>
+        </section>
+
+        <section id="page-about" class="page"><div class="card"><div class="section-head"><h2>About</h2></div><p><b>Nehru Arts &amp; Science College — Student Portal Pro</b></p><p>This portal is designed for college project presentation and academic record handling. It includes profile login, student details management, attendance tracking, semester-wise result analysis, grade chart visualization, and table-based PDF export for academic reports.</p><p>The system is built to make student information entry, result checking, and report generation simple, organised, and mobile friendly.</p></div></section>
+        <section id="page-help" class="page"><div class="card"><div class="section-head"><h2>Help</h2></div><ul><li>Create your profile once, then login using the same email and password.</li><li>Use the Student Details module to save student information and maintain records.</li><li>Use the Attendance module to enter working days and present days to calculate percentage automatically.</li><li>Use the Student Result module to add subjects, enter marks, search class-wise results, and download the result table as PDF.</li><li>For viewing the same saved data on another device, login with the same account.</li></ul></div></section>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div id="profileModal" class="modal">
+  <div class="box">
+    <div class="section-head"><h2>Edit Profile</h2><button id="closeProfileModal" class="ghost-btn" type="button">Close</button></div>
+    <div class="field-grid two">
+      <div class="field"><label>Full Name</label><input id="editName"></div>
+      <div class="field"><label>Phone</label><input id="editPhone"></div>
+      <div class="field"><label>Department</label><input id="editDept"></div>
+    </div>
+    <div class="field" style="margin-top:12px"><label>About</label><textarea id="editAbout"></textarea></div>
+    <div class="toolbar" style="margin-top:16px"><button id="saveProfileBtn" class="primary-btn" type="button">Save Profile</button></div>
+    <div id="profileMsg" class="success"></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js';
+import { getDatabase, ref, set, get, push, update, remove, onValue, off } from 'https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js';
+
+const firebaseConfig = {
+  apiKey: 'AIzaSyCoeKpqNo4_O4VSUj85ST6y6WGkqMUtCWo',
+  authDomain: 'student-portal-4989c.firebaseapp.com',
+  databaseURL: 'https://student-portal-4989c-default-rtdb.asia-southeast1.firebasedatabase.app',
+  projectId: 'student-portal-4989c',
+  storageBucket: 'student-portal-4989c.firebasestorage.app',
+  messagingSenderId: '398833681871',
+  appId: '1:398833681871:web:f246fd58342c8622fefeba',
+  measurementId: 'G-BQ8KBHEYX3'
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+const $ = id => document.getElementById(id);
+const authView = $('authView');
+const appView = $('appView');
+const sidebar = $('sidebar');
+const mobileOverlay = $('mobileOverlay');
+let currentUser = null;
+let currentProfile = null;
+let students = [];
+let attendance = [];
+let results = [];
+let subjects = [];
+let filteredStudents = [];
+let filteredAttendance = [];
+let editingStudentId = null;
+let editingAttendanceId = null;
+let editingResultId = null;
+let gradeChart;
+let activeListeners = [];
+let authResolved = false;
+let startupTimeout = null;
+let currentResultFilter = { name:'', cls:'', sec:'', subjectIds:[] };
+let studentPhotoData = '';
+const EMPTY_STUDENT_IMAGE = `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><rect width="120" height="120" rx="18" fill="#eef4fb"/><circle cx="60" cy="44" r="22" fill="#92a8c4"/><path d="M24 104c7-20 25-31 36-31s29 11 36 31" fill="#92a8c4"/></svg>`)}`;
+let currentResultClassName = localStorage.getItem('portalCurrentResultClass') || '';
+
+function escapeHtml(s=''){ return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;'); }
+function uidText(text=''){ return (text.trim()[0] || 'U').toUpperCase(); }
+function notify(el, msg='', isError=true){ el.className = isError ? 'error' : 'success'; el.textContent = msg; }
+function closeSidebar(){ sidebar.classList.remove('open'); mobileOverlay.classList.remove('show'); }
+function openSidebar(){ sidebar.classList.add('open'); mobileOverlay.classList.add('show'); }
+function perfLabel(percent){ if(percent >= 75) return {txt:'Good', cls:'good'}; if(percent >= 50) return {txt:'Average', cls:'warn'}; return {txt:'Low', cls:'bad'}; }
+function modal(show){ $('profileModal').style.display = show ? 'flex' : 'none'; document.body.classList.toggle('modal-open', show); }
+function toArray(obj){ return Object.entries(obj || {}).map(([id, value]) => ({ id, ...value })); }
+function path(name){ return `users/${currentUser.uid}/${name}`; }
+function sortByCreated(list, desc=true){ return [...list].sort((a,b) => (desc ? (b.createdAt||0)-(a.createdAt||0) : (a.createdAt||0)-(b.createdAt||0))); }
+function filterStudentsList(){ const q = ($('studentSearch')?.value || '').trim().toLowerCase(); filteredStudents = !q ? [...students] : students.filter(s => [s.name,s.roll,s.reg,s.dept].some(v => String(v||'').toLowerCase().includes(q))); }
+function filterAttendanceList(){ const q = ($('attendanceSearch')?.value || '').trim().toLowerCase(); filteredAttendance = !q ? [...attendance] : attendance.filter(a => [a.name,a.className].some(v => String(v||'').toLowerCase().includes(q))); }
+function setStudentPreview(src=''){ $('st_image_preview').src = src || EMPTY_STUDENT_IMAGE; }
+async function resizeImageFile(file){
+  return await new Promise((resolve,reject)=>{
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const maxSide = 240;
+        let {width,height} = img;
+        const scale = Math.min(1, maxSide / Math.max(width,height));
+        width = Math.max(1, Math.round(width * scale));
+        height = Math.max(1, Math.round(height * scale));
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img,0,0,width,height);
+        resolve(canvas.toDataURL('image/jpeg',0.82));
+      };
+      img.onerror = reject;
+      img.src = reader.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+$('st_image').addEventListener('change', e => {
+  const file = e.target.files?.[0];
+  if (!file) { studentPhotoData = ''; setStudentPreview(''); return; }
+  const reader = new FileReader();
+  reader.onload = () => { studentPhotoData = String(reader.result || ''); setStudentPreview(studentPhotoData); };
+  reader.onerror = async () => {
+    try { studentPhotoData = await resizeImageFile(file); setStudentPreview(studentPhotoData); }
+    catch (err) { alert('Could not load image. Please try another file.'); studentPhotoData=''; e.target.value=''; setStudentPreview(''); }
+  };
+  reader.readAsDataURL(file);
+});
+
+
+const lastLoginEmail = localStorage.getItem('portalLastEmail') || '';
+if (lastLoginEmail) {
+  $('loginEmail').value = lastLoginEmail;
+}
+
+if (currentResultClassName) {
+  $('className').value = currentResultClassName;
+  $('className').disabled = true;
+}
+$('className').addEventListener('input', () => {
+  if (!$('className').disabled) {
+    currentResultClassName = $('className').value.trim();
+    if (currentResultClassName) localStorage.setItem('portalCurrentResultClass', currentResultClassName);
+  }
+});
+$('changeClassBtn').addEventListener('click', () => {
+  $('className').disabled = false;
+  $('className').focus();
+  $('className').select?.();
+});
+
+$('studentSearch')?.addEventListener('input', renderStudents);
+$('attendanceSearch')?.addEventListener('input', renderAttendance);
+$('resultNameSearch')?.addEventListener('input', () => {
+  currentResultFilter.name = ($('resultNameSearch').value || '').trim().toLowerCase();
+  renderResults(applyResultFilters(), currentResultFilter.subjectIds || []);
+});
+$('menuBtn').addEventListener('click', openSidebar);
+mobileOverlay.addEventListener('click', closeSidebar);
+document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', () => {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const page = btn.dataset.page;
+  document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+  $('page-' + page).style.display = 'block';
+  $('pageTitle').textContent = btn.textContent.trim().replace(/^\S+\s/, '');
+  closeSidebar();
+}));
+
+$('tabLogin').addEventListener('click', () => switchTab('login'));
+$('tabRegister').addEventListener('click', () => switchTab('register'));
+function switchTab(mode){
+  $('tabLogin').classList.toggle('active', mode === 'login');
+  $('tabRegister').classList.toggle('active', mode === 'register');
+  $('loginForm').classList.toggle('hidden', mode !== 'login');
+  $('registerForm').classList.toggle('hidden', mode !== 'register');
+}
+
+$('loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  notify($('loginMsg'), '');
+  try {
+    const email = $('loginEmail').value.trim();
+    await signInWithEmailAndPassword(auth, email, $('loginPassword').value);
+    localStorage.setItem('portalLastEmail', email);
+  } catch (err) {
+    notify($('loginMsg'), err.message, true);
+  }
+});
+
+$('registerForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  notify($('registerMsg'), '');
+  try {
+    const email = $('regEmail').value.trim();
+    const cred = await createUserWithEmailAndPassword(auth, email, $('regPassword').value);
+    localStorage.setItem('portalLastEmail', email);
+    await set(ref(db, `users/${cred.user.uid}/profile`), {
+      name: $('regName').value.trim(),
+      phone: $('regPhone').value.trim(),
+      email: $('regEmail').value.trim(),
+      dept: $('regDept').value.trim(),
+      about: $('regAbout').value.trim(),
+      createdAt: Date.now()
+    });
+    notify($('registerMsg'), 'Profile created successfully. You are now logged in.', false);
+  } catch (err) {
+    notify($('registerMsg'), err.message, true);
+  }
+});
+
+$('logoutBtn').addEventListener('click', async () => { await signOut(auth); });
+$('openProfileEdit').addEventListener('click', () => {
+  if (!currentProfile) return;
+  $('editName').value = currentProfile.name || '';
+  $('editPhone').value = currentProfile.phone || '';
+  $('editDept').value = currentProfile.dept || '';
+  $('editAbout').value = currentProfile.about || '';
+  $('profileMsg').textContent = '';
+  modal(true);
+});
+$('closeProfileModal').addEventListener('click', () => modal(false));
+$('saveProfileBtn').addEventListener('click', async () => {
+  if (!currentUser) return;
+  await update(ref(db, path('profile')), {
+    name: $('editName').value.trim(),
+    phone: $('editPhone').value.trim(),
+    dept: $('editDept').value.trim(),
+    about: $('editAbout').value.trim(),
+    email: currentProfile?.email || currentUser.email,
+    updatedAt: Date.now()
+  });
+  notify($('profileMsg'), 'Profile updated successfully.', false);
+});
+
+function updateProfileUI(profile){
+  currentProfile = profile || {};
+  const name = currentProfile.name || currentUser?.email || 'User';
+  $('topUser').textContent = name;
+  $('sideUser').textContent = name;
+  $('topEmail').textContent = currentProfile.email || currentUser?.email || '—';
+  $('avatarBox').textContent = uidText(name);
+  $('pfName').textContent = currentProfile.name || '—';
+  $('pfEmail').textContent = currentProfile.email || currentUser?.email || '—';
+  $('pfPhone').textContent = currentProfile.phone || '—';
+  $('pfDept').textContent = currentProfile.dept || '—';
+  $('pfAbout').textContent = currentProfile.about || '—';
+}
+
+function stopRealtime(){ activeListeners.forEach(({r,cb}) => off(r, 'value', cb)); activeListeners = []; }
+function listen(pathValue, callback){ const r = ref(db, pathValue); const cb = snap => callback(snap.val()); onValue(r, cb); activeListeners.push({r,cb}); }
+function startRealtime(){
+  stopRealtime();
+  listen(path('profile'), value => updateProfileUI(value || { email: currentUser.email }));
+  listen(path('students'), value => { students = sortByCreated(toArray(value), true); filterStudentsList(); renderStudents(); refreshDashboard(); });
+  listen(path('attendance'), value => { attendance = sortByCreated(toArray(value), true); filterAttendanceList(); renderAttendance(); refreshDashboard(); });
+  listen(path('results'), value => { results = sortByCreated(toArray(value), true); renderResults(); refreshDashboard(); });
+  listen(path('subjects'), value => { subjects = sortByCreated(toArray(value), false); renderSubjects(); renderMarksInputs(); renderResults(); refreshDashboard(); });
+}
+
+function refreshDashboard(){
+  $('dashStudents').textContent = students.length;
+  $('dashAttendance').textContent = attendance.length;
+  $('dashResults').textContent = results.length;
+  $('dashSubjects').textContent = subjects.length;
+  const g = {A:0,B:0,C:0,D:0};
+  results.forEach(r => { if (g[r.grade] !== undefined) g[r.grade] += 1; });
+  if (gradeChart) {
+    gradeChart.data.datasets[0].data = [g.A,g.B,g.C,g.D];
+    gradeChart.update();
+  }
+  updateClassOptions();
+  updateSearchSubjects();
+}
+
+function initCharts(){
+  gradeChart = new Chart($('gradeChart'), {
+    type:'pie',
+    data:{ labels:['A','B','C','D'], datasets:[{ data:[0,0,0,0], backgroundColor:['#3498db','#ff6384','#f39c3d','#f1c453'] }] },
+    options:{ responsive:true, maintainAspectRatio:false }
+  });
+}
+
+initCharts();
+
+function renderStudents(){
+  filterStudentsList();
+  const tb = $('studentTbody');
+  if (!filteredStudents.length) { tb.innerHTML = `<tr><td colspan="11" class="empty">${students.length ? 'No matching student records found.' : 'No student records yet.'}</td></tr>`; return; }
+  tb.innerHTML = filteredStudents.map((s,i) => `
+    <tr>
+      <td>${i+1}</td><td><img class="table-student-photo" src="${s.photo || EMPTY_STUDENT_IMAGE}" alt="Student photo"></td><td>${escapeHtml(s.roll||'')}</td><td>${escapeHtml(s.reg||'')}</td><td><b>${escapeHtml(s.name||'')}</b></td><td>${escapeHtml(s.dept||'')}</td><td>${escapeHtml(s.year||'')}</td><td>${escapeHtml(s.sem||'')}</td><td>${escapeHtml(s.phone||'')}</td><td>${escapeHtml(s.email||'')}</td>
+      <td><div class="actions"><button class="small-btn edit" type="button" onclick="window.editStudentRec('${s.id}')">Edit</button><button class="small-btn delete" type="button" onclick="window.deleteStudentRec('${s.id}')">Delete</button></div></td>
+    </tr>
+  `).join('');
+}
+window.editStudentRec = id => {
+  const s = students.find(x => x.id === id); if (!s) return;
+  editingStudentId = id;
+  $('st_roll').value = s.roll || ''; $('st_reg').value = s.reg || ''; $('st_name').value = s.name || ''; $('st_dept').value = s.dept || '';
+  $('st_year').value = s.year || ''; $('st_sem').value = s.sem || '1'; $('st_phone').value = s.phone || ''; $('st_email').value = s.email || '';
+  $('st_father').value = s.father || ''; $('st_mother').value = s.mother || ''; $('st_address').value = s.address || '';
+  studentPhotoData = s.photo || '';
+  setStudentPreview(studentPhotoData);
+  $('st_image').value = '';
+  $('studentSaveBtn').textContent = 'Update Student'; $('studentCancelBtn').classList.remove('hidden');
+};
+window.deleteStudentRec = async id => { if (confirm('Delete this student record?')) await remove(ref(db, `${path('students')}/${id}`)); };
+function clearStudentForm(){ editingStudentId = null; ['st_roll','st_reg','st_name','st_dept','st_year','st_phone','st_email','st_father','st_mother','st_address','st_image'].forEach(id => $(id).value = ''); $('st_sem').value='1'; studentPhotoData=''; setStudentPreview(''); $('studentSaveBtn').textContent='Save Student'; $('studentCancelBtn').classList.add('hidden'); }
+$('studentCancelBtn').addEventListener('click', clearStudentForm);
+$('studentSaveBtn').addEventListener('click', async () => {
+  if (!currentUser) return;
+  const base = {
+    roll:$('st_roll').value.trim(), reg:$('st_reg').value.trim(), name:$('st_name').value.trim(), dept:$('st_dept').value.trim(),
+    year:$('st_year').value.trim(), sem:$('st_sem').value, phone:$('st_phone').value.trim(), email:$('st_email').value.trim(),
+    father:$('st_father').value.trim(), mother:$('st_mother').value.trim(), address:$('st_address').value.trim(), photo:studentPhotoData || '', updatedAt:Date.now()
+  };
+  if (!base.name) return alert('Student name is required.');
+  if (editingStudentId) await update(ref(db, `${path('students')}/${editingStudentId}`), base);
+  else { const newRef = push(ref(db, path('students'))); await set(newRef, { ...base, createdAt:Date.now() }); }
+  clearStudentForm();
+});
+
+function renderAttendance(){
+  filterAttendanceList();
+  const tb = $('attendanceTbody');
+  if (!filteredAttendance.length) { tb.innerHTML = `<tr><td colspan="8" class="empty">${attendance.length ? 'No matching attendance records found.' : 'No attendance records yet.'}</td></tr>`; return; }
+  tb.innerHTML = filteredAttendance.map((a,i) => {
+    const st = perfLabel(Number(a.percent || 0));
+    return `<tr><td>${i+1}</td><td><b>${escapeHtml(a.name||'')}</b></td><td>${escapeHtml(a.className||'-')}</td><td>${a.work||0}</td><td>${a.present||0}</td><td>${a.percent||0}%</td><td><span class="badge ${st.cls}">${st.txt}</span></td><td><div class="actions"><button class="small-btn edit" type="button" onclick="window.editAttendanceRec('${a.id}')">Edit</button><button class="small-btn delete" type="button" onclick="window.deleteAttendanceRec('${a.id}')">Delete</button></div></td></tr>`;
+  }).join('');
+}
+window.editAttendanceRec = id => {
+  const a = attendance.find(x => x.id === id); if (!a) return;
+  editingAttendanceId = id;
+  $('att_name').value = a.name || ''; $('att_class').value = a.className || ''; $('att_work').value = a.work || ''; $('att_present').value = a.present || '';
+  $('attSaveBtn').textContent = 'Update Attendance'; $('attCancelBtn').classList.remove('hidden');
+};
+window.deleteAttendanceRec = async id => { if (confirm('Delete this attendance record?')) await remove(ref(db, `${path('attendance')}/${id}`)); };
+function clearAttendanceForm(){ editingAttendanceId = null; ['att_name','att_class','att_work','att_present'].forEach(id => $(id).value=''); $('attSaveBtn').textContent='Save Attendance'; $('attCancelBtn').classList.add('hidden'); }
+$('attCancelBtn').addEventListener('click', clearAttendanceForm);
+$('attSaveBtn').addEventListener('click', async () => {
+  const name = $('att_name').value.trim(); const className = $('att_class').value.trim(); const work = Number($('att_work').value); const present = Number($('att_present').value);
+  if (!name) return alert('Student name is required.');
+  if (!work || work <= 0) return alert('Working days must be greater than 0.');
+  const percent = Math.max(0, Math.min(100, ((present / work) * 100))).toFixed(2);
+  const base = { name, className, work, present, percent, updatedAt:Date.now() };
+  if (editingAttendanceId) await update(ref(db, `${path('attendance')}/${editingAttendanceId}`), base);
+  else { const newRef = push(ref(db, path('attendance'))); await set(newRef, { ...base, createdAt:Date.now() }); }
+  clearAttendanceForm();
+});
+
+function renderSubjects(){
+  const tb = $('subjectTbody');
+  if (!subjects.length) { tb.innerHTML = '<tr><td colspan="2" class="empty">No subjects added yet.</td></tr>'; return; }
+  tb.innerHTML = subjects.map(s => `<tr><td>${escapeHtml(s.name||'')}</td><td><div class="actions"><button class="small-btn edit" type="button" onclick="window.editSubjectRec('${s.id}','${encodeURIComponent(s.name||'')}')">Edit</button><button class="small-btn delete" type="button" onclick="window.deleteSubjectRec('${s.id}')">Delete</button></div></td></tr>`).join('');
+}
+window.editSubjectRec = async (id, encodedName) => {
+  const newName = prompt('Edit subject', decodeURIComponent(encodedName));
+  if (!newName || !newName.trim()) return;
+  await update(ref(db, `${path('subjects')}/${id}`), { name:newName.trim(), updatedAt:Date.now() });
+};
+window.deleteSubjectRec = async id => { if (confirm('Delete this subject?')) await remove(ref(db, `${path('subjects')}/${id}`)); };
+$('addSubjectBtn').addEventListener('click', async () => {
+  const name = $('newSubject').value.trim();
+  if (!name) return;
+  if (subjects.some(s => (s.name||'').toLowerCase() === name.toLowerCase())) return alert('Subject already exists.');
+  const newRef = push(ref(db, path('subjects'))); await set(newRef, { name, createdAt:Date.now() }); $('newSubject').value = '';
+});
+function getSelectedSubjectIds(){
+  return Array.from(document.querySelectorAll('#searchSubjectMenu input[type="checkbox"]:checked')).map(i => i.value).filter(Boolean);
+}
+function updateSubjectFilterLabel(){
+  const ids = getSelectedSubjectIds();
+  const label = $('searchSubjectText');
+  if (!label) return;
+  if (!ids.length) label.textContent = 'All Subjects';
+  else if (ids.length === 1) label.textContent = subjects.find(s => s.id === ids[0])?.name || '1 Subject';
+  else label.textContent = `${ids.length} Subjects Selected`;
+}
+function toggleSubjectDropdown(force){
+  const menu = $('searchSubjectMenu');
+  if (!menu) return;
+  const open = typeof force === 'boolean' ? force : !menu.classList.contains('open');
+  menu.classList.toggle('open', open);
+  $('searchSubjectTrigger').setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+$('searchSubjectTrigger').addEventListener('click', e => {
+  e.stopPropagation();
+  toggleSubjectDropdown();
+});
+document.addEventListener('click', e => {
+  if ($('subjectMultiWrap') && !$('subjectMultiWrap').contains(e.target)) toggleSubjectDropdown(false);
+});
+$('searchResultBtn').addEventListener('click', () => {
+  const name = ($('resultNameSearch').value || '').trim().toLowerCase();
+  const cls=$('searchClass').value.trim(), sec=$('searchSection').value, subjectIds=getSelectedSubjectIds();
+  currentResultFilter = { name, cls, sec, subjectIds };
+  renderResults(applyResultFilters(), subjectIds);
+});
+$('clearSearchBtn').addEventListener('click', () => {
+  $('resultNameSearch').value=''; $('searchClass').value=''; $('searchSection').value='';
+  document.querySelectorAll('#searchSubjectMenu input[type="checkbox"]').forEach(o => o.checked = false);
+  currentResultFilter = { name:'', cls:'', sec:'', subjectIds:[] };
+  updateSubjectFilterLabel();
+  toggleSubjectDropdown(false);
+  renderResults(results, []);
+});
+
+function renderMarksInputs(){
+  const holder = $('marksInputs'); holder.innerHTML = '';
+  const max = Number($('maxMarks').value);
+  subjects.forEach(sub => {
+    const wrap = document.createElement('div'); wrap.className = 'field';
+    wrap.innerHTML = `<label>${escapeHtml(sub.name||'')}</label><input type="number" min="0" max="${max}" data-subject-id="${sub.id}" placeholder="${escapeHtml(sub.name||'')}">`;
+    holder.appendChild(wrap);
+  });
+}
+$('maxMarks').addEventListener('change', renderMarksInputs);
+
+function renderHeader(subjectIds = []){
+  let h = '<tr><th>Name</th><th>Class</th><th>Section</th><th>Semester</th>';
+  const selectedSubjects = (subjectIds||[]).map(id => subjects.find(s => s.id === id)).filter(Boolean);
+  if(selectedSubjects.length){
+    selectedSubjects.forEach(s => h += `<th>${escapeHtml(s.name||'')}</th>`);
+    h += '<th>Status</th>';
+  } else {
+    subjects.forEach(s => h += `<th>${escapeHtml(s.name||'')}</th>`);
+    h += '<th>Grade</th><th>Status</th><th>SGPA</th><th>CGPA</th><th>Action</th>';
+  }
+  h += '</tr>';
+  $('tableHead').innerHTML = h;
+}
+function updateClassOptions(){
+  const classSelect = $('searchClass');
+  const classes = [...new Set(results.map(s => s.className).filter(Boolean))];
+  classSelect.innerHTML = '<option value="">All Classes</option>';
+  classes.forEach(c => classSelect.innerHTML += `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`);
+}
+function applyResultFilters(){
+  const name = (currentResultFilter.name || '').trim().toLowerCase();
+  const cls = (currentResultFilter.cls || '').trim();
+  const sec = currentResultFilter.sec || '';
+  return results.filter(r => {
+    const matchesName = !name || String(r.name || '').toLowerCase().includes(name);
+    const matchesClass = !cls || r.className === cls;
+    const matchesSection = !sec || r.section === sec;
+    return matchesName && matchesClass && matchesSection;
+  });
+}
+function updateSearchSubjects(){
+  const menu = $('searchSubjectMenu');
+  if (!menu) return;
+  const selected = new Set(currentResultFilter.subjectIds || []);
+  menu.innerHTML = '';
+  if (!subjects.length) {
+    menu.innerHTML = '<div class="muted" style="padding:10px 12px">No subjects added</div>';
+    updateSubjectFilterLabel();
+    return;
+  }
+  subjects.forEach(s => {
+    const row = document.createElement('label');
+    row.className = 'subject-option';
+    row.innerHTML = `<input type="checkbox" value="${escapeHtml(s.id)}" ${selected.has(s.id) ? 'checked' : ''}><span>${escapeHtml(s.name||'')}</span>`;
+    const cb = row.querySelector('input');
+    cb.addEventListener('change', () => {
+      currentResultFilter.subjectIds = getSelectedSubjectIds();
+      updateSubjectFilterLabel();
+    });
+    menu.appendChild(row);
+  });
+  updateSubjectFilterLabel();
+}
+function renderResults(data = results, subjectIds = []){
+  const selectedIds = Array.isArray(subjectIds) ? subjectIds.filter(Boolean) : (subjectIds ? [subjectIds] : []);
+  renderHeader(selectedIds);
+  const tb = $('resultTbody');
+  const colspan = selectedIds.length ? 5 + selectedIds.length : 9 + subjects.length;
+  if (!data.length) { tb.innerHTML = `<tr><td colspan="${colspan}" class="empty">No result records yet.</td></tr>`; return; }
+  tb.innerHTML = data.map((r,i) => {
+    if(selectedIds.length){
+      const markCells = selectedIds.map(id => `<td>${r.marks?.[id] ?? 0}</td>`).join('');
+      return `<tr><td>${escapeHtml(r.name||'')}</td><td>${escapeHtml(r.className||'')}</td><td>${escapeHtml(r.section||'')}</td><td>${escapeHtml(r.semester||'')}</td>${markCells}<td class="${(r.status||'').startsWith('PASS')?'pass':'fail'}">${escapeHtml(r.status||'')}</td></tr>`;
+    }
+    const markCells = subjects.map(s => `<td>${r.marks?.[s.id] ?? 0}</td>`).join('');
+    return `<tr><td>${escapeHtml(r.name||'')}</td><td>${escapeHtml(r.className||'')}</td><td>${escapeHtml(r.section||'')}</td><td>${escapeHtml(r.semester||'')}</td>${markCells}<td>${escapeHtml(r.grade||'')}</td><td class="${(r.status||'').startsWith('PASS')?'pass':'fail'}">${escapeHtml(r.status||'')}</td><td>${r.sgpa||0}</td><td>${r.cgpa||0}</td><td><div class="actions"><button class="small-btn edit" type="button" onclick="window.editResultRec('${r.id}')">Edit</button><button class="small-btn delete" type="button" onclick="window.deleteResultRec('${r.id}')">Delete</button></div></td></tr>`;
+  }).join('');
+  $('cgpaDisplay').textContent = data.length === 1 && data[0].cgpa && !selectedIds.length ? `CGPA: ${data[0].cgpa}` : '';
+}
+window.editResultRec = id => {
+  const r = results.find(x => x.id === id); if (!r) return;
+  editingResultId = id;
+  $('className').disabled = false;
+  $('studentName').value = r.name || ''; $('className').value = r.className || ''; $('sectionName').value = r.section || 'A'; $('semester').value = r.semester || '1'; $('maxMarks').value = String(r.maxMarks || 100);
+  renderMarksInputs();
+  subjects.forEach(s => { const input = document.querySelector(`[data-subject-id="${s.id}"]`); if (input) input.value = r.marks?.[s.id] ?? 0; });
+  $('resultSaveBtn').textContent = 'Update Student'; $('resultCancelBtn').classList.remove('hidden');
+};
+window.deleteResultRec = async id => { if (confirm('Are you sure you want to delete this student?')) await remove(ref(db, `${path('results')}/${id}`)); };
+function clearResultForm(){ editingResultId = null; $('studentName').value=''; $('className').value = currentResultClassName || ''; $('className').disabled = !!currentResultClassName; $('sectionName').value='A'; $('semester').value='1'; $('maxMarks').value='100'; renderMarksInputs(); $('resultSaveBtn').textContent='Save Student'; $('resultCancelBtn').classList.add('hidden'); }
+$('resultCancelBtn').addEventListener('click', clearResultForm);
+$('resultSaveBtn').addEventListener('click', async () => {
+  const name = $('studentName').value.trim();
+  const enteredClassName = $('className').value.trim();
+  if (enteredClassName) {
+    currentResultClassName = enteredClassName;
+    localStorage.setItem('portalCurrentResultClass', currentResultClassName);
+    $('className').disabled = true;
+  }
+  const className = currentResultClassName || enteredClassName;
+  if (!name || !className) return alert('Student name and class name are required.');
+  if (!subjects.length) return alert('Add at least one subject first.');
+  const maxMarks = Number($('maxMarks').value);
+  const passMark = maxMarks === 75 ? 25 : 35;
+  const marks = {}; let total = 0; let totalPoints = 0; let failed = false;
+  subjects.forEach(s => {
+    const val = Number(document.querySelector(`[data-subject-id="${s.id}"]`)?.value || 0);
+    marks[s.id] = val; total += val; if (val < passMark) failed = true;
+    const per = (val / maxMarks) * 100; let gp = per >= 75 ? 10 : per >= 60 ? 8 : per >= 45 ? 6 : 0; if (val < passMark) gp = 0; totalPoints += gp;
+  });
+  const percentage = ((total / (subjects.length * maxMarks)) * 100).toFixed(2);
+  const grade = percentage >= 75 ? 'A' : percentage >= 60 ? 'B' : percentage >= 45 ? 'C' : 'D';
+  const sgpa = (totalPoints / subjects.length).toFixed(2);
+  let cgpa = sgpa;
+  const previous = results.find(r => (r.name||'').toLowerCase() === name.toLowerCase() && r.id !== editingResultId);
+  if (previous) cgpa = ((Number(previous.cgpa || previous.sgpa || 0) + Number(sgpa)) / 2).toFixed(2);
+  const failedSubjects = subjects.filter(s => (marks[s.id] ?? 0) < passMark).map(s => s.name);
+  const status = failedSubjects.length ? `FAIL (${failedSubjects.join(',')})` : 'PASS';
+  const base = { name, className, section:$('sectionName').value, semester:$('semester').value, maxMarks, marks, total, percentage, grade, status, sgpa, cgpa, updatedAt:Date.now() };
+  if (editingResultId) await update(ref(db, `${path('results')}/${editingResultId}`), base);
+  else { const newRef = push(ref(db, path('results'))); await set(newRef, { ...base, createdAt:Date.now() }); }
+  clearResultForm();
+});
+
+async function exportTablePdf(tableId, title, fileName){
+  const sourceTable = $(tableId);
+  if (!sourceTable) return alert('Table not found.');
+  const bodyRows = sourceTable.querySelectorAll('tbody tr');
+  if (!bodyRows.length) return alert('No table data to export.');
+  const wrap = document.createElement('div');
+  wrap.style.position = 'fixed';
+  wrap.style.left = '-99999px';
+  wrap.style.top = '0';
+  wrap.style.width = '1200px';
+  wrap.style.background = '#fff';
+  wrap.style.padding = '20px';
+  wrap.innerHTML = `<h2 style="margin:0 0 6px;font-family:Arial;color:#102033">Nehru Arts & Science College</h2><div style="margin:0 0 14px;font-family:Arial;color:#44556f">${title}</div>`;
+  const clone = sourceTable.cloneNode(true);
+  clone.style.width = '100%';
+  clone.style.borderCollapse = 'collapse';
+  clone.style.fontFamily = 'Arial, sans-serif';
+  clone.querySelectorAll('button').forEach(btn => btn.remove());
+  clone.querySelectorAll('tr').forEach(tr => {
+    const last = tr.lastElementChild;
+    if (!last) return;
+    if (String(last.textContent).trim().toLowerCase() === 'actions' || last.querySelector('.actions')) last.remove();
+  });
+  clone.querySelectorAll('th,td').forEach(cell => {
+    cell.style.border = '1px solid #333';
+    cell.style.padding = '8px';
+    cell.style.textAlign = 'center';
+    cell.style.color = '#111';
+    cell.style.background = cell.tagName === 'TH' ? '#dbe9ff' : '#fff';
+  });
+  wrap.appendChild(clone);
+  document.body.appendChild(wrap);
+  await new Promise(r => setTimeout(r, 400));
+  await html2pdf().set({
+    margin: 8,
+    filename: fileName,
+    image: { type: 'jpeg', quality: 1 },
+    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', letterRendering: true },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+  }).from(wrap).save();
+  wrap.remove();
+}
+function buildAcademicPdfHeader(doc, subtitle, infoRows, summaryCards){
+  doc.setFillColor(255,255,255);
+  doc.rect(0,0,297,210,'F');
+  doc.setTextColor(12,77,162);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(23);
+  doc.text('Nehru Arts & Science College', 148.5, 18, { align: 'center' });
+  doc.setTextColor(80,95,115);
+  doc.setFontSize(12);
+  doc.setFont('helvetica','normal');
+  doc.text(subtitle, 148.5, 26, { align: 'center' });
+  doc.setFontSize(10);
+  doc.text('Official Academic Record', 148.5, 32, { align: 'center' });
+  doc.setDrawColor(12,77,162);
+  doc.setLineWidth(0.8);
+  doc.line(15, 38, 282, 38);
+
+  const leftX = 22;
+  const rightX = 155;
+  const boxY = 46;
+  const boxW = 267;
+  const columnWidth = 108;
+  const lineGap = 4.5;
+  let contentHeight = 0;
+
+  infoRows.forEach(row => {
+    let rowMax = 0;
+    row.forEach(item => {
+      if (!item) return;
+      const valueLines = doc.splitTextToSize(String(item.value || '—'), 95);
+      rowMax = Math.max(rowMax, 8 + (valueLines.length * lineGap));
+    });
+    contentHeight += rowMax + 8;
+  });
+
+  const boxH = Math.max(34, contentHeight + 4);
+  doc.setFillColor(238,245,252);
+  doc.setDrawColor(12,77,162);
+  doc.roundedRect(15, boxY, boxW, boxH, 3, 3, 'FD');
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(11);
+  doc.setTextColor(12,55,105);
+  let y = 56;
+
+  infoRows.forEach(row => {
+    let rowMax = 0;
+    [leftX, rightX].forEach((x, idx) => {
+      const item = row[idx];
+      if (!item) return;
+      const valueLines = doc.splitTextToSize(String(item.value || '—'), 95);
+      doc.text(item.label, x, y);
+      doc.setFont('helvetica','normal');
+      doc.setTextColor(30,30,30);
+      doc.text(valueLines, x, y + 8);
+      doc.setFont('helvetica','bold');
+      doc.setTextColor(12,55,105);
+      rowMax = Math.max(rowMax, 8 + (valueLines.length * lineGap));
+    });
+    y += rowMax + 8;
+  });
+
+  const cardsY = boxY + boxH + 6;
+  let x = 15;
+  summaryCards.forEach(card => {
+    doc.setFillColor(42,123,187);
+    doc.roundedRect(x, cardsY, 84, 20, 2, 2, 'F');
+    doc.setTextColor(255,255,255);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(11);
+    doc.text(card.label, x + 42, cardsY + 7.5, { align: 'center' });
+    doc.setFontSize(15);
+    doc.text(String(card.value), x + 42, cardsY + 15.5, { align: 'center' });
+    x += 91.5;
+  });
+  return cardsY + 26;
+}
+function exportStudentPdf(){
+  filterStudentsList();
+  if (!filteredStudents.length) return alert('No student records to export.');
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  const depts = [...new Set(filteredStudents.map(s => s.dept).filter(Boolean))];
+  const years = [...new Set(filteredStudents.map(s => s.year).filter(Boolean))];
+  const semesters = [...new Set(filteredStudents.map(s => s.sem).filter(Boolean))];
+  const startY = buildAcademicPdfHeader(doc, 'Student Details Report', [
+    [{label:'Department:', value: depts.length === 1 ? depts[0] : (depts.join(', ') || '—')}, {label:'Semester:', value: semesters.join(', ') || '—'}],
+    [{label:'Academic Year:', value: years.join(', ') || '—'}, {label:'Generated On:', value: new Date().toLocaleString()}]
+  ], [
+    {label:'Total Students', value: filteredStudents.length},
+    {label:'Departments', value: depts.length || 1},
+    {label:'Semesters', value: semesters.length || 1}
+  ]);
+  const body = filteredStudents.map((s, i) => [i+1, s.roll || '-', s.reg || '-', s.name || '-', s.dept || '-', s.year || '-', s.sem || '-', s.phone || '-', s.email || '-']);
+  doc.autoTable({ startY, head:[[ '#','Roll No','Register No','Student Name','Department','Year','Semester','Phone','Email' ]], body,
+    theme:'grid', styles:{ font:'helvetica', fontSize:9, cellPadding:3.5, halign:'center', textColor:[20,20,20], lineColor:[210,220,232], lineWidth:0.2 },
+    headStyles:{ fillColor:[12,77,122], textColor:[255,255,255], fontStyle:'bold' }, alternateRowStyles:{ fillColor:[248,250,253] }, margin:{ left:15,right:15 } });
+  doc.save('Student_Details_Report.pdf');
+}
+function exportAttendancePdf(){
+  filterAttendanceList();
+  if (!filteredAttendance.length) return alert('No attendance records to export.');
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  const avg = filteredAttendance.length ? (filteredAttendance.reduce((sum,a)=>sum+Number(a.percent||0),0)/filteredAttendance.length).toFixed(1) : '0.0';
+  const good = filteredAttendance.filter(a => Number(a.percent || 0) >= 75).length;
+  const classes = [...new Set(filteredAttendance.map(a => String(a.className||'').trim()).filter(Boolean))];
+  const startY = buildAcademicPdfHeader(doc, 'Attendance Report', [
+    [{label:'Class:', value: classes.length === 1 ? classes[0] : (classes.join(', ') || 'All Classes')}, {label:'Status:', value: 'Attendance Summary'}],
+    [{label:'Generated On:', value: new Date().toLocaleString()}, {label:'Average Percentage:', value: `${avg}%`}]
+  ], [
+    {label:'Total Records', value: filteredAttendance.length},
+    {label:'Good Attendance', value: good},
+    {label:'Average %', value: `${avg}%`}
+  ]);
+  const body = filteredAttendance.map((a, i) => [i+1, a.name || '-', a.className || '-', a.work || 0, a.present || 0, `${a.percent || 0}%`, Number(a.percent || 0) >= 75 ? 'Good' : Number(a.percent || 0) >= 50 ? 'Average' : 'Low']);
+  doc.autoTable({ startY, head:[[ '#','Student Name','Class','Working Days','Present Days','Percentage','Status' ]], body,
+    theme:'grid', styles:{ font:'helvetica', fontSize:10, cellPadding:4, halign:'center', textColor:[20,20,20], lineColor:[210,220,232], lineWidth:0.2 },
+    headStyles:{ fillColor:[12,77,122], textColor:[255,255,255], fontStyle:'bold' }, alternateRowStyles:{ fillColor:[248,250,253] }, margin:{ left:15,right:15 },
+    didParseCell:data => { if (data.section === 'body' && data.column.index === 6) { const v = String(data.cell.raw || ''); data.cell.styles.textColor = v === 'Good' ? [22,153,84] : v === 'Average' ? [192,124,19] : [217,75,75]; data.cell.styles.fontStyle='bold'; } } });
+  doc.save('Attendance_Report.pdf');
+}
+function exportResultPdf(){
+  if (!results.length) return alert('No result records to export.');
+  const selectedName = ($('resultNameSearch').value || '').trim().toLowerCase();
+  const selectedClass = $('searchClass').value.trim();
+  const selectedSection = $('searchSection').value;
+  const selectedSubjectIds = getSelectedSubjectIds();
+  const selectedSubjectNames = selectedSubjectIds.map(id => subjects.find(s => s.id === id)?.name).filter(Boolean);
+  const filtered = results.filter(r => (!selectedName || String(r.name || '').toLowerCase().includes(selectedName)) && (!selectedClass || r.className === selectedClass) && (!selectedSection || r.section === selectedSection));
+  if (!filtered.length) return alert('No matching result records for the selected filters.');
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+  const classValues = [...new Set(filtered.map(r => String(r.className || '').trim()).filter(Boolean))];
+  const sectionValues = [...new Set(filtered.map(r => String(r.section || '').trim()).filter(Boolean))];
+  const semesterValues = [...new Set(filtered.map(r => String(r.semester || '').trim()).filter(Boolean))];
+  const className = selectedClass || (classValues.length === 1 ? classValues[0] : 'All Classes');
+  const section = selectedSection || (sectionValues.length === 1 ? sectionValues[0] : 'All Sections');
+  const semester = semesterValues.length === 1 ? semesterValues[0] : (semesterValues.length ? semesterValues.join(', ') : 'All Semesters');
+
+  const passMarkFor = maxMarks => Number(maxMarks || 100) === 75 ? 25 : 35;
+  const rowStatus = (record) => {
+    if (!selectedSubjectIds.length) return String(record.status || '-');
+    const failed = selectedSubjectIds
+      .map(id => ({ id, name: subjects.find(s => s.id === id)?.name || 'Subject', mark: Number(record.marks?.[id] ?? 0) }))
+      .filter(item => item.mark < passMarkFor(record.maxMarks));
+    return failed.length ? `FAIL (${failed.map(f => f.name).join(', ')})` : 'PASS';
+  };
+  const rowAverage = (record) => {
+    if (!selectedSubjectIds.length) return Number(record.percentage || 0);
+    const max = Number(record.maxMarks || 100);
+    const total = selectedSubjectIds.reduce((sum, id) => sum + Number(record.marks?.[id] ?? 0), 0);
+    return ((total / (Math.max(selectedSubjectIds.length, 1) * max)) * 100).toFixed(1);
+  };
+
+  const totalStudents = filtered.length;
+  const passCount = filtered.filter(r => rowStatus(r).startsWith('PASS')).length;
+  const passRate = totalStudents ? Math.round((passCount / totalStudents) * 100) : 0;
+  const avgScore = totalStudents ? (filtered.reduce((sum, r) => sum + Number(rowAverage(r) || 0), 0) / totalStudents).toFixed(1) : '0.0';
+
+  const startY = buildAcademicPdfHeader(doc, selectedSubjectNames.length ? 'Selected Subject Result Report' : 'Student Results Report', [
+    [{label:'Class:', value: className}, {label:'Section:', value: section}],
+    [{label:'Semester:', value: semester}, {label:'Subject:', value: selectedSubjectNames.length ? selectedSubjectNames.join(', ') : 'All Subjects'}]
+  ], [
+    {label:'Total Students', value: totalStudents},
+    {label:'Pass Rate', value: `${passRate}%`},
+    {label:'Avg Score', value: avgScore}
+  ]);
+
+  let head, body;
+  if (selectedSubjectIds.length) {
+    head = [['Student Name', 'Class', 'Section', 'Semester', ...selectedSubjectNames, 'Average', 'Status']];
+    body = filtered.map(r => [
+      String(r.name || ''),
+      String(r.className || ''),
+      String(r.section || ''),
+      String(r.semester || ''),
+      ...selectedSubjectIds.map(id => String(r.marks?.[id] ?? 0)),
+      String(rowAverage(r)),
+      rowStatus(r)
+    ]);
+  } else {
+    head = [['Student Name', 'Class', 'Section', 'Semester', ...subjects.map(s => s.name || ''), 'Total Marks', 'Average', 'Grade', 'Status']];
+    body = filtered.map(r => {
+      const totalMarks = `${Number(r.total || 0)}/${Number(r.maxMarks || 100) * Math.max(subjects.length,1)}`;
+      return [String(r.name || ''), String(r.className || ''), String(r.section || ''), String(r.semester || ''), ...subjects.map(s => String(r.marks?.[s.id] ?? 0)), totalMarks, String(r.percentage || 0), String(r.grade || '-'), String(r.status || '-')];
+    });
+  }
+  doc.autoTable({ startY, head, body, theme:'grid', styles:{ font:'helvetica', fontSize:9, cellPadding:3.5, halign:'center', valign:'middle', textColor:[20,20,20], lineColor:[210,220,232], lineWidth:0.2 }, headStyles:{ fillColor:[12,77,122], textColor:[255,255,255], fontStyle:'bold' }, alternateRowStyles:{ fillColor:[248,250,253] }, margin:{ left:15, right:15 }, didParseCell: data => { const statusCol = selectedSubjectIds.length ? (5 + selectedSubjectIds.length) : (8 + subjects.length); if (data.section === 'body' && data.column.index === statusCol) { const v = String(data.cell.raw || ''); data.cell.styles.textColor = v.startsWith('PASS') ? [22,153,84] : [217,75,75]; data.cell.styles.fontStyle = 'bold'; } } });
+  const safeClass = String(className).replace(/[^a-z0-9]+/gi, '_');
+  doc.save(`Student_Results_${safeClass}.pdf`);
+}
+$('studentPdfBtn').addEventListener('click', exportStudentPdf);
+$('attPdfBtn').addEventListener('click', exportAttendancePdf);
+$('resultPdfBtn').addEventListener('click', exportResultPdf);
+
+function enableEnterNext(){
+  document.addEventListener('keydown', e => {
+    const target = e.target;
+    if (e.key !== 'Enter' || !target || target.tagName === 'TEXTAREA') return;
+    const fields = Array.from(document.querySelectorAll('input, select, textarea, button')).filter(el => !el.disabled && el.offsetParent !== null);
+    const index = fields.indexOf(target);
+    if (index === -1) return;
+    e.preventDefault();
+    const next = fields[index + 1];
+    if (next) {
+      next.focus();
+      if (typeof next.select === 'function' && (next.tagName === 'INPUT' || next.tagName === 'TEXTAREA')) next.select();
+    }
+  });
+}
+enableEnterNext();
+
+function showLoginWithMessage(message=''){
+  $('startupLoader').style.display = 'none';
+  authView.style.display = 'grid';
+  appView.style.display = 'none';
+  switchTab('login');
+  if(message) notify($('loginMsg'), message, true);
+}
+
+startupTimeout = setTimeout(() => {
+  if (authResolved) return;
+  showLoginWithMessage('Please login again.');
+}, 1800);
+
+window.addEventListener('error', () => {
+  if (!authResolved) showLoginWithMessage('A script error blocked startup. Open this file with Live Server and check browser console.');
+});
+window.addEventListener('unhandledrejection', () => {
+  if (!authResolved) showLoginWithMessage('A Firebase/network error blocked startup. Check browser console for details.');
+});
+
+onAuthStateChanged(auth, async user => {
+  try {
+    stopRealtime();
+    authResolved = true;
+    if (startupTimeout) clearTimeout(startupTimeout);
+    $('startupLoader').style.display = 'none';
+
+    if (user) {
+      currentUser = user;
+      localStorage.setItem('portalLastEmail', user.email || '');
+      authView.style.display = 'none';
+      appView.style.display = 'block';
+      const profileSnap = await get(ref(db, `users/${user.uid}/profile`));
+      updateProfileUI(profileSnap.exists() ? profileSnap.val() : { email:user.email });
+      startRealtime();
+    } else {
+      currentUser = null;
+      currentProfile = null;
+      students = [];
+      attendance = [];
+      results = [];
+      subjects = [];
+      authView.style.display = 'grid';
+      appView.style.display = 'none';
+      switchTab('login');
+    }
+  } catch (err) {
+    console.error(err);
+    showLoginWithMessage(err?.message || 'Firebase startup failed.');
+  }
+});
+</script>
+</body>
+</html>
