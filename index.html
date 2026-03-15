@@ -502,6 +502,17 @@ $('studentSearch')?.addEventListener('input', renderStudents);
 $('attendanceSearch')?.addEventListener('input', renderAttendance);
 $('resultNameSearch')?.addEventListener('input', () => {
   currentResultFilter.name = ($('resultNameSearch').value || '').trim().toLowerCase();
+  currentResultFilter.cls = $('searchClass').value.trim();
+  currentResultFilter.sec = $('searchSection').value;
+  currentResultFilter.subjectIds = getSelectedSubjectIds();
+  renderResults(applyResultFilters(), currentResultFilter.subjectIds || []);
+});
+$('searchClass')?.addEventListener('change', () => {
+  currentResultFilter.cls = $('searchClass').value.trim();
+  renderResults(applyResultFilters(), currentResultFilter.subjectIds || []);
+});
+$('searchSection')?.addEventListener('change', () => {
+  currentResultFilter.sec = $('searchSection').value;
   renderResults(applyResultFilters(), currentResultFilter.subjectIds || []);
 });
 $('menuBtn').addEventListener('click', openSidebar);
@@ -787,13 +798,13 @@ function updateClassOptions(){
   classes.forEach(c => classSelect.innerHTML += `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`);
 }
 function applyResultFilters(){
-  const name = (currentResultFilter.name || '').trim().toLowerCase();
-  const cls = (currentResultFilter.cls || '').trim();
-  const sec = currentResultFilter.sec || '';
+  const name = (($('resultNameSearch')?.value) || currentResultFilter.name || '').trim().toLowerCase();
+  const cls = (($('searchClass')?.value) || currentResultFilter.cls || '').trim();
+  const sec = ($('searchSection')?.value) || currentResultFilter.sec || '';
   return results.filter(r => {
     const matchesName = !name || String(r.name || '').toLowerCase().includes(name);
-    const matchesClass = !cls || r.className === cls;
-    const matchesSection = !sec || r.section === sec;
+    const matchesClass = !cls || String(r.className || '').trim() === cls;
+    const matchesSection = !sec || String(r.section || '').trim() === sec;
     return matchesName && matchesClass && matchesSection;
   });
 }
@@ -815,6 +826,7 @@ function updateSearchSubjects(){
     cb.addEventListener('change', () => {
       currentResultFilter.subjectIds = getSelectedSubjectIds();
       updateSubjectFilterLabel();
+      renderResults(applyResultFilters(), currentResultFilter.subjectIds || []);
     });
     menu.appendChild(row);
   });
